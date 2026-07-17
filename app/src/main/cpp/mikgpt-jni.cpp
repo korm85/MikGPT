@@ -122,8 +122,8 @@ Java_com_mikgpt_LlamaInference_generate(JNIEnv* env, jobject thiz, jstring promp
     llama_sampler_chain_add(sampler, llama_sampler_init_min_p(0.05f, 1));
     llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
 
-    // Clear context KV cache using the new llama_get_memory and llama_memory_clear functions
-    llama_memory_clear(llama_get_memory(ctx), true);
+    // Clear context KV cache
+    llama_kv_cache_clear(ctx);
 
     std::string response = "";
 

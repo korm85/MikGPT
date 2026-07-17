@@ -9,8 +9,8 @@ include(FetchContent)
 # Fetch llama.cpp source automatically at build time
 FetchContent_Declare(
     llamacpp
-    GIT_REPOSITORY https://github.com/PrismML-Eng/llama.cpp.git
-    GIT_TAG        prism
+    GIT_REPOSITORY https://github.com/ggml-org/llama.cpp.git
+    GIT_TAG        b4785
 )
 
 # Configure llama.cpp flags
@@ -33,6 +33,6 @@ target_include_directories(mikgpt PRIVATE
     ${llamacpp_SOURCE_DIR}/common
 )
 
-target_link_libraries(mikgpt PRIVATE llama llama-common ${CMAKE_DL_LIBS})
+target_link_libraries(mikgpt PRIVATE llama common ${CMAKE_DL_LIBS})
 find_library(log-lib log)
 target_link_libraries(mikgpt PRIVATE ${log-lib})
