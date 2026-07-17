@@ -599,11 +599,11 @@ val HUGGINGFACE_MODELS = listOf(
         fileName = "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
     ),
     HFModel(
-        name = "Gemma 3 4B Instruct Q4_K_M",
-        description = "Google's Gemma 3 • Best quality that still fits on phone",
-        sizeLabel = "~2.6 GB",
-        downloadUrl = "https://huggingface.co/bartowski/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf",
-        fileName = "gemma-3-4b-it-Q4_K_M.gguf"
+        name = "Gemma 2 2B Instruct Q4_K_M",
+        description = "Google's Gemma 2 • Light, very smart, highly compatible",
+        sizeLabel = "~1.6 GB",
+        downloadUrl = "https://huggingface.co/bartowski/gemma-2-2b-it-GGUF/resolve/main/gemma-2-2b-it-Q4_K_M.gguf",
+        fileName = "gemma-2-2b-it-Q4_K_M.gguf"
     )
 )
 
