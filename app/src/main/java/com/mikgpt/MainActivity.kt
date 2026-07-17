@@ -388,7 +388,7 @@ fun MikGPTTheme(content: @Composable () -> Unit) {
         onPrimaryContainer = Color(0xFFE8EAED),
         secondary = Color(0xFFF28B82),
         secondaryContainer = Color(0xFF2D2E30),
-        onContainer = Color(0xFFE8EAED),
+        onSecondaryContainer = Color(0xFFE8EAED),
         background = Color(0xFF202124),
         surface = Color(0xFF202124)
     )
