@@ -28,7 +28,18 @@ jobs:
       - name: Build Debug APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon > build.log 2>&1
+        continue-on-error: false
+
+      - name: Commit build log on failure
+        if: failure()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          cp build.log build_error.txt
+          git add build_error.txt
+          git commit -m "Build Failure Log [run: ${{ github.run_id }}]"
+          git push origin main
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
