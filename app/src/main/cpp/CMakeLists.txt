@@ -28,6 +28,11 @@ add_library(mikgpt SHARED
 )
 
 # Link JNI library with llama.cpp core
+target_include_directories(mikgpt PRIVATE 
+    ${llamacpp_SOURCE_DIR}
+    ${llamacpp_SOURCE_DIR}/common
+)
+
 target_link_libraries(mikgpt PRIVATE llama common ${CMAKE_DL_LIBS})
 find_library(log-lib log)
 target_link_libraries(mikgpt PRIVATE ${log-lib})
