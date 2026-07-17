@@ -19,6 +19,10 @@ android {
             useSupportLibrary = true
         }
 
+        ndk {
+            abiFilters.addAll(setOf("arm64-v8a"))
+        }
+
         externalNativeBuild {
             cmake {
                 arguments += "-DGGML_VULKAN=OFF"
