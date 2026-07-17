@@ -76,9 +76,9 @@ Java_com_mikgpt_LlamaInference_generate(JNIEnv* env, jobject thiz, jstring promp
     llama_sampler* sampler = llama_sampler_chain_init(llama_sampler_chain_default_params());
     llama_sampler_chain_add(sampler, llama_sampler_init_temp(0.7f));
     llama_sampler_chain_add(sampler, llama_sampler_init_top_k(40));
-    llama_sampler_chain_add(sampler, llama_sampler_init_top_p(0.9f));
-    llama_sampler_chain_add(sampler, llama_sampler_init_min_p(0.05f));
-    llama_sampler_chain_add(sampler, llama_sampler_init_dist(llama_model_n_vocab(model)));
+    llama_sampler_chain_add(sampler, llama_sampler_init_top_p(0.9f, 1));
+    llama_sampler_chain_add(sampler, llama_sampler_init_min_p(0.05f, 1));
+    llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
 
     // Clear context KV cache
     llama_kv_cache_clear(ctx);
