@@ -5,9 +5,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.OpenableColumns
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,11 +60,51 @@ data class Message(
     val artifactHtml: String = ""
 )
 
-fun checkStoragePermission(context: android.content.Context): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        Environment.isExternalStorageManager()
-    } else {
-        true
+fun getFileNameFromUri(context: android.content.Context, uri: Uri): String? {
+    var name: String? = null
+    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (idx >= 0) name = cursor.getString(idx)
+        }
+    }
+    return name ?: uri.lastPathSegment
+}
+
+fun copyUriToFile(context: android.content.Context, uri: Uri, destFile: File, onProgress: (Float) -> Unit): Boolean {
+    val tmpFile = File(destFile.parent, destFile.name + ".tmp")
+    destFile.delete()
+    tmpFile.delete()
+    return try {
+        val size = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val idx = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (idx >= 0) cursor.getLong(idx) else -1L
+            } else -1L
+        } ?: -1L
+
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            tmpFile.outputStream().use { output ->
+                val buf = ByteArray(1024 * 1024)
+                var bytes: Int
+                var copied = 0L
+                while (input.read(buf).also { bytes = it } != -1) {
+                    output.write(buf, 0, bytes)
+                    copied += bytes
+                    if (size > 0) onProgress(copied.toFloat() / size)
+                }
+            }
+        }
+        if (size <= 0 || tmpFile.length() > 0) {
+            tmpFile.renameTo(destFile)
+            true
+        } else {
+            tmpFile.delete()
+            false
+        }
+    } catch (e: Exception) {
+        tmpFile.delete()
+        false
     }
 }
 
@@ -72,16 +115,15 @@ fun AppScreen() {
     val context = LocalContext.current
     var modelLoaded by remember { mutableStateOf(false) }
     var modelName by remember { mutableStateOf("No model imported") }
-    var modelStatus by remember { mutableStateOf("Please import a .gguf model file to start.") }
+    var modelStatus by remember { mutableStateOf("Tap 💾 to load a GGUF model.") }
     var systemOutputSpeed by remember { mutableStateOf("") }
     var inputText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(listOf<Message>()) }
     var searchEnabled by remember { mutableStateOf(true) }
     var isGenerating by remember { mutableStateOf(false) }
 
-    // Dialog state variables
+    // Dialog state
     var showModelPicker by remember { mutableStateOf(false) }
-    var hasStoragePermission by remember { mutableStateOf(checkStoragePermission(context)) }
     var showLogDialog by remember { mutableStateOf(false) }
     var logContent by remember { mutableStateOf("") }
 
@@ -90,12 +132,48 @@ fun AppScreen() {
     var copyProgressLabel by remember { mutableStateOf("") }
     var copyProgress by remember { mutableStateOf(0f) }
 
-    // Refresh permission when dialog is shown
-    LaunchedEffect(showModelPicker) {
-        hasStoragePermission = checkStoragePermission(context)
+    // Helper: copy URI -> filesDir -> load
+    fun loadFromUri(uri: Uri) {
+        scope.launch(Dispatchers.IO) {
+            val fileName = getFileNameFromUri(context, uri) ?: "model.gguf"
+            val destFile = File(context.filesDir, fileName)
+            withContext(Dispatchers.Main) {
+                showCopyProgress = true
+                copyProgressLabel = "Importing $fileName..."
+                copyProgress = 0f
+            }
+            val ok = copyUriToFile(context, uri, destFile) { progress ->
+                scope.launch(Dispatchers.Main) { copyProgress = progress }
+            }
+            withContext(Dispatchers.Main) { showCopyProgress = false }
+            if (!ok) {
+                withContext(Dispatchers.Main) { modelStatus = "Error: Could not import file." }
+                return@launch
+            }
+            withContext(Dispatchers.Main) {
+                modelStatus = "Loading engine..."
+                modelName = fileName
+            }
+            val success = LlamaInference.loadModel(destFile.absolutePath)
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    modelLoaded = true
+                    modelStatus = "Active: $fileName"
+                } else {
+                    modelStatus = "Error: Load failed — check Engine Logs."
+                }
+            }
+        }
     }
 
-    // Bottom sheet details for showing HTML artifacts (like Claude)
+    // System file picker — no storage permissions needed
+    val filePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { loadFromUri(it) }
+    }
+
+    // Bottom sheet for HTML artifacts
     var selectedArtifactHtml by remember { mutableStateOf<String?>(null) }
     var showArtifactSheet by remember { mutableStateOf(false) }
 
@@ -126,6 +204,7 @@ fun AppScreen() {
                     }) {
                         Icon(Icons.Default.BugReport, contentDescription = "View Engine Logs", tint = MaterialTheme.colorScheme.primary)
                     }
+                    // Upload icon: launches system file picker directly — no permission dialogs
                     IconButton(onClick = { showModelPicker = true }) {
                         Icon(Icons.Default.CloudUpload, contentDescription = "Select GGUF Model", tint = MaterialTheme.colorScheme.primary)
                     }
@@ -307,80 +386,15 @@ fun AppScreen() {
     if (showModelPicker) {
         ModelPickerDialog(
             onDismiss = { showModelPicker = false },
-            onFileSelected = { sourceFile ->
+            onBrowseFiles = {
                 showModelPicker = false
-                scope.launch(Dispatchers.IO) {
-                    val sandboxDir = context.getExternalFilesDir(null)!!
-                    val destFile = File(sandboxDir, sourceFile.name)
-                    val tmpFile = File(sandboxDir, sourceFile.name + ".tmp")
-
-                    // Always delete stale cached copy to avoid corrupted files
-                    destFile.delete()
-                    tmpFile.delete()
-
-                    withContext(Dispatchers.Main) {
-                        showCopyProgress = true
-                        copyProgressLabel = "Copying ${sourceFile.name}..."
-                        copyProgress = 0f
-                    }
-                    val totalBytes = sourceFile.length()
-                    var copiedBytes = 0L
-                    var copyOk = false
-                    try {
-                        sourceFile.inputStream().use { input ->
-                            tmpFile.outputStream().use { output ->
-                                val buf = ByteArray(1024 * 1024)
-                                var bytes: Int
-                                while (input.read(buf).also { bytes = it } != -1) {
-                                    output.write(buf, 0, bytes)
-                                    copiedBytes += bytes
-                                    val progress = copiedBytes.toFloat() / totalBytes
-                                    withContext(Dispatchers.Main) { copyProgress = progress }
-                                }
-                            }
-                        }
-                        // Verify integrity before committing
-                        if (tmpFile.length() == totalBytes) {
-                            tmpFile.renameTo(destFile)
-                            copyOk = true
-                        } else {
-                            tmpFile.delete()
-                        }
-                    } catch (e: Exception) {
-                        tmpFile.delete()
-                    }
-
-                    withContext(Dispatchers.Main) { showCopyProgress = false }
-
-                    if (!copyOk) {
-                        withContext(Dispatchers.Main) {
-                            modelStatus = "Error: Source file appears corrupted or truncated. Re-download the original GGUF file."
-                        }
-                        return@launch
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        modelStatus = "Loading engine..."
-                        modelName = destFile.name
-                    }
-                    val success = LlamaInference.loadModel(destFile.absolutePath)
-                    withContext(Dispatchers.Main) {
-                        if (success) {
-                            modelLoaded = true
-                            modelStatus = "Active: ${destFile.name}"
-                        } else {
-                            modelStatus = "Error: Failed to load model. Check Engine Logs for details."
-                        }
-                    }
-                }
+                filePicker.launch(arrayOf("*/*"))
             },
             onDirectDownload = { url, fileName ->
                 showModelPicker = false
                 scope.launch(Dispatchers.IO) {
-                    val sandboxDir = context.getExternalFilesDir(null)!!
-                    val destFile = File(sandboxDir, fileName)
-                    val tmpFile = File(sandboxDir, "$fileName.tmp")
-                    // Always start fresh to avoid partial/corrupted cached downloads
+                    val destFile = File(context.filesDir, fileName)
+                    val tmpFile = File(context.filesDir, "$fileName.tmp")
                     destFile.delete()
                     tmpFile.delete()
                     withContext(Dispatchers.Main) {
@@ -409,7 +423,6 @@ fun AppScreen() {
                                 }
                             }
                         }
-                        // Atomic rename: only commit if download completed fully
                         tmpFile.renameTo(destFile)
                         withContext(Dispatchers.Main) {
                             showCopyProgress = false
@@ -422,7 +435,7 @@ fun AppScreen() {
                                 modelLoaded = true
                                 modelStatus = "Active: ${destFile.name}"
                             } else {
-                                modelStatus = "Error: Failed to load downloaded model. Check Engine Logs."
+                                modelStatus = "Error: Load failed — check Engine Logs."
                             }
                         }
                     } catch (e: Exception) {
@@ -433,17 +446,7 @@ fun AppScreen() {
                         }
                     }
                 }
-            },
-            onRequestPermission = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val intent = Intent(
-                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                        Uri.parse("package:" + context.packageName)
-                    )
-                    context.startActivity(intent)
-                }
-            },
-            hasPermission = hasStoragePermission
+            }
         )
     }
 
@@ -586,105 +589,53 @@ val HUGGINGFACE_MODELS = listOf(
 @Composable
 fun ModelPickerDialog(
     onDismiss: () -> Unit,
-    onFileSelected: (File) -> Unit,
-    onDirectDownload: (url: String, fileName: String) -> Unit,
-    onRequestPermission: () -> Unit,
-    hasPermission: Boolean
+    onBrowseFiles: () -> Unit,
+    onDirectDownload: (url: String, fileName: String) -> Unit
 ) {
-    val context = LocalContext.current
-    var downloadFiles by remember { mutableStateOf(listOf<File>()) }
-    var refreshTrigger by remember { mutableStateOf(0) }
-
-    LaunchedEffect(hasPermission, refreshTrigger) {
-        if (hasPermission) {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            downloadFiles = downloadsDir.listFiles { _, name ->
-                name.endsWith(".gguf", ignoreCase = true)
-            }?.toList() ?: emptyList()
-        }
-    }
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Load Model")
-                IconButton(onClick = { refreshTrigger++ }) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.primary)
-                }
-            }
-        },
+        title = { Text("Load Model") },
         text = {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                // ── Section 1: Local Downloads folder ──────────────────────
+
+                // ── Section 1: Browse from device ─────────────────────────
                 item {
                     Text(
-                        "📂  My Downloads",
+                        "📂  Load from Device",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onBrowseFiles,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.FolderOpen, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Browse Files (Downloads, etc.)")
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
-                }
-
-                if (!hasPermission) {
-                    item {
-                        Button(
-                            onClick = onRequestPermission,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                        ) {
-                            Text("Grant Storage Access", fontSize = 12.sp)
-                        }
-                    }
-                } else if (downloadFiles.isEmpty()) {
-                    item {
-                        Text(
-                            "No .gguf files found in Downloads.",
-                            fontSize = 12.sp,
-                            color = Color.LightGray,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                } else {
-                    items(downloadFiles) { file ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onFileSelected(file) }
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Folder, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
-                                Text(
-                                    String.format("%.2f GB  •  Tap to load", file.length() / (1024.0 * 1024.0 * 1024.0)),
-                                    fontSize = 10.sp,
-                                    color = Color.LightGray
-                                )
-                            }
-                        }
-                        Divider(color = Color.White.copy(alpha = 0.08f))
-                    }
-                }
-
-                // ── Section 2: HuggingFace direct download catalog ──────────
-                item {
+                    Text(
+                        "Uses the system file picker \u2014 works with any folder, no permission required.",
+                        fontSize = 10.sp,
+                        color = Color.LightGray
+                    )
                     Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                // ── Section 2: HuggingFace direct download ─────────────────
+                item {
                     Text(
-                        "🤗  Download from HuggingFace",
+                        "\uD83E\uDD17  Download from HuggingFace",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Models download directly to the app. No files to move.",
+                        "Downloads directly into the app. No files to manage.",
                         fontSize = 11.sp,
                         color = Color.LightGray
                     )
@@ -722,9 +673,8 @@ fun ModelPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
 }
+
