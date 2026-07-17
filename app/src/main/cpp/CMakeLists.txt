@@ -33,6 +33,6 @@ target_include_directories(mikgpt PRIVATE
     ${llamacpp_SOURCE_DIR}/common
 )
 
-target_link_libraries(mikgpt PRIVATE llama common ${CMAKE_DL_LIBS})
+target_link_libraries(mikgpt PRIVATE llama llama-common ${CMAKE_DL_LIBS})
 find_library(log-lib log)
 target_link_libraries(mikgpt PRIVATE ${log-lib})
