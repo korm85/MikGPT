@@ -1,0 +1,115 @@
+
+Welcome to Gradle 8.2!
+
+Here are the highlights of this release:
+ - Kotlin DSL: new reference documentation, assignment syntax by default
+ - Kotlin DSL is now the default with Gradle init
+ - Improved suggestions to resolve errors in console output
+
+For more details see https://docs.gradle.org/8.2/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+Checking the license for package NDK (Side by side) 25.1.8937393 in /usr/local/lib/android/sdk/licenses
+License for package NDK (Side by side) 25.1.8937393 accepted.
+Preparing "Install NDK (Side by side) 25.1.8937393 v.25.1.8937393".
+"Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" ready.
+Installing NDK (Side by side) 25.1.8937393 in /usr/local/lib/android/sdk/ndk/25.1.8937393
+"Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" complete.
+"Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" finished.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+
+> Task :app:configureCMakeDebug[arm64-v8a]
+Checking the license for package CMake 3.22.1 in /usr/local/lib/android/sdk/licenses
+License for package CMake 3.22.1 accepted.
+Preparing "Install CMake 3.22.1 v.3.22.1".
+"Install CMake 3.22.1 v.3.22.1" ready.
+Installing CMake 3.22.1 in /usr/local/lib/android/sdk/cmake/3.22.1
+"Install CMake 3.22.1 v.3.22.1" complete.
+"Install CMake 3.22.1 v.3.22.1" finished.
+C/C++: CMAKE_BUILD_TYPE=Debug
+C/C++: CMake Warning at /home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/vendor/cpp-httplib/CMakeLists.txt:152 (message):
+C/C++:   OpenSSL not found, HTTPS support disabled
+
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeLibDexDebug
+> Task :app:processDebugResources
+
+> Task :app:buildCMakeDebug[arm64-v8a]
+C/C++: ninja: Entering directory `/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a'
+C/C++: /usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DGGML_BACKEND_SHARED -DGGML_SHARED -DGGML_USE_CPU -DLLAMA_SHARED -Dmikgpt_EXPORTS -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/common -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/src/../include -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/ggml/src/../include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -std=gnu++17 -MD -MT CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o -MF CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o.d -o CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o -c /home/runner/work/MikGPT/MikGPT/app/src/main/cpp/mikgpt-jni.cpp
+C/C++: /home/runner/work/MikGPT/MikGPT/app/src/main/cpp/mikgpt-jni.cpp:126:5: error: use of undeclared identifier 'llama_kv_cache_clear'
+C/C++:     llama_kv_cache_clear(ctx);
+C/C++:     ^
+C/C++: 1 error generated.
+
+> Task :app:buildCMakeDebug[arm64-v8a] FAILED
+> Task :app:mergeExtDexDebug
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:buildCMakeDebug[arm64-v8a]'.
+> com.android.ide.common.process.ProcessException: ninja: Entering directory `/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a'
+  [1/232] Building C object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
+  [2/232] Building CXX object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
+  [3/232] Building C object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
+  [4/232] Building CXX object CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o
+  FAILED: CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o 
+  /usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DGGML_BACKEND_SHARED -DGGML_SHARED -DGGML_USE_CPU -DLLAMA_SHARED -Dmikgpt_EXPORTS -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/common -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/src/../include -I/home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a/_deps/llamacpp-src/ggml/src/../include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -std=gnu++17 -MD -MT CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o -MF CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o.d -o CMakeFiles/mikgpt.dir/mikgpt-jni.cpp.o -c /home/runner/work/MikGPT/MikGPT/app/src/main/cpp/mikgpt-jni.cpp
+  /home/runner/work/MikGPT/MikGPT/app/src/main/cpp/mikgpt-jni.cpp:126:5: error: use of undeclared identifier 'llama_kv_cache_clear'
+      llama_kv_cache_clear(ctx);
+      ^
+  1 error generated.
+  [5/232] Building CXX object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
+  [6/232] Building CXX object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
+  [7/232] Building C object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
+  [8/232] Building CXX object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
+  [9/232] Building CXX object _deps/llamacpp-build/ggml/src/CMakeFiles/ggml-base.dir/ggml-backend-meta.cpp.o
+  ninja: build stopped: subcommand failed.
+  
+  C++ build system [build] failed while executing:
+      /usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja \
+        -C \
+        /home/runner/work/MikGPT/MikGPT/app/.cxx/Debug/1ly3b3i4/arm64-v8a \
+        ggml \
+        ggml-base \
+        ggml-cpu \
+        llama \
+        llama-common \
+        mikgpt
+    from /home/runner/work/MikGPT/MikGPT/app
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 1s
+23 actionable tasks: 23 executed
