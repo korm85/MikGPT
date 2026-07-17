@@ -1,0 +1,5 @@
+# Force binary files to be treated as binary
+*.jar binary
+*.png binary
+*.jpg binary
+*.webp binary
