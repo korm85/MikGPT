@@ -1,0 +1,326 @@
+Downloading https://services.gradle.org/distributions/gradle-8.2-bin.zip
+............10%............20%............30%.............40%............50%............60%............70%.............80%............90%............100%
+
+Welcome to Gradle 8.2!
+
+Here are the highlights of this release:
+ - Kotlin DSL: new reference documentation, assignment syntax by default
+ - Kotlin DSL is now the default with Gradle init
+ - Improved suggestions to resolve errors in console output
+
+For more details see https://docs.gradle.org/8.2/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:67:51: Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:67:52: Unresolved reference: ktx
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:80:53: Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:80:54: Unresolved reference: core
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:82:60: Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:82:61: Unresolved reference: junit4
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:84:54: Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+e: file:///home/runner/work/MikGPT/MikGPT/app/build.gradle.kts:84:55: Unresolved reference: manifest
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* Where:
+Build file '/home/runner/work/MikGPT/MikGPT/app/build.gradle.kts' line: 67
+
+* What went wrong:
+Script compilation errors:
+
+  Line 67:     implementation(libs.androidx.lifecycle.runtime-ktx)
+                                                             ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                 public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                 public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 67:     implementation(libs.androidx.lifecycle.runtime-ktx)
+                                                              ^ Unresolved reference: ktx
+
+  Line 80:     androidTestImplementation(libs.androidx.espresso-core)
+                                                               ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                   public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                   public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 80:     androidTestImplementation(libs.androidx.espresso-core)
+                                                                ^ Unresolved reference: core
+
+  Line 82:     androidTestImplementation(libs.androidx.compose.ui.test-junit4)
+                                                                      ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                          public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                          public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 82:     androidTestImplementation(libs.androidx.compose.ui.test-junit4)
+                                                                       ^ Unresolved reference: junit4
+
+  Line 84:     debugImplementation(libs.androidx.compose.ui.test-manifest)
+                                                                ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                    public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                    public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 84:     debugImplementation(libs.androidx.compose.ui.test-manifest)
+                                                                 ^ Unresolved reference: manifest
+
+8 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* Where:
+Build file '/home/runner/work/MikGPT/MikGPT/app/build.gradle.kts' line: 67
+
+* What went wrong:
+Script compilation errors:
+
+  Line 67:     implementation(libs.androidx.lifecycle.runtime-ktx)
+                                                             ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                 public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                 public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                 public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 67:     implementation(libs.androidx.lifecycle.runtime-ktx)
+                                                              ^ Unresolved reference: ktx
+
+  Line 80:     androidTestImplementation(libs.androidx.espresso-core)
+                                                               ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                   public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                   public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                   public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 80:     androidTestImplementation(libs.androidx.espresso-core)
+                                                                ^ Unresolved reference: core
+
+  Line 82:     androidTestImplementation(libs.androidx.compose.ui.test-junit4)
+                                                                      ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                          public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                          public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                          public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 82:     androidTestImplementation(libs.androidx.compose.ui.test-junit4)
+                                                                       ^ Unresolved reference: junit4
+
+  Line 84:     debugImplementation(libs.androidx.compose.ui.test-manifest)
+                                                                ^ Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+                                                                    public inline operator fun BigDecimal.minus(other: BigDecimal): BigDecimal defined in kotlin
+                                                                    public inline operator fun BigInteger.minus(other: BigInteger): BigInteger defined in kotlin
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(element: TypeVariable(T)): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Iterable<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): List<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(key: TypeVariable(K)): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Array<out TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Iterable<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <K, V> Map<out TypeVariable(K), TypeVariable(V)>.minus(keys: Sequence<TypeVariable(K)>): Map<TypeVariable(K), TypeVariable(V)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(element: TypeVariable(T)): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Set<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Set<TypeVariable(T)> defined in kotlin.collections
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(element: TypeVariable(T)): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Array<out TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Iterable<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+                                                                    public operator fun <T> Sequence<TypeVariable(T)>.minus(elements: Sequence<TypeVariable(T)>): Sequence<TypeVariable(T)> defined in kotlin.sequences
+
+  Line 84:     debugImplementation(libs.androidx.compose.ui.test-manifest)
+                                                                 ^ Unresolved reference: manifest
+
+8 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 1m 5s
