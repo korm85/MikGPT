@@ -578,11 +578,32 @@ data class HFModel(
 
 val HUGGINGFACE_MODELS = listOf(
     HFModel(
-        name = "Ternary-Bonsai-8B Q2_0",
-        description = "Ternary-quantized, optimized for mobile CPU inference",
-        sizeLabel = "~2.8 GB",
-        downloadUrl = "https://huggingface.co/PrismML-Eng/Ternary-Bonsai-8B-GGUF/resolve/main/Ternary-Bonsai-8B-Q2_0_g64.gguf",
-        fileName = "Ternary-Bonsai-8B-Q2_0_g64.gguf"
+        name = "Llama 3.2 3B Instruct Q4_K_M",
+        description = "Meta's 3B instruction model • Fast, smart, phone-optimized",
+        sizeLabel = "~2.0 GB",
+        downloadUrl = "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+        fileName = "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+    ),
+    HFModel(
+        name = "Phi-3.5 Mini Instruct Q4_K_M",
+        description = "Microsoft's compact powerhouse • Excellent reasoning per GB",
+        sizeLabel = "~2.2 GB",
+        downloadUrl = "https://huggingface.co/bartowski/Phi-3.5-mini-instruct-GGUF/resolve/main/Phi-3.5-mini-instruct-Q4_K_M.gguf",
+        fileName = "Phi-3.5-mini-instruct-Q4_K_M.gguf"
+    ),
+    HFModel(
+        name = "Qwen2.5 1.5B Instruct Q4_K_M",
+        description = "Alibaba's ultra-light model • Fits in 1 GB, very fast",
+        sizeLabel = "~1.0 GB",
+        downloadUrl = "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+        fileName = "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
+    ),
+    HFModel(
+        name = "Gemma 3 4B Instruct Q4_K_M",
+        description = "Google's Gemma 3 • Best quality that still fits on phone",
+        sizeLabel = "~2.6 GB",
+        downloadUrl = "https://huggingface.co/bartowski/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf",
+        fileName = "gemma-3-4b-it-Q4_K_M.gguf"
     )
 )
 

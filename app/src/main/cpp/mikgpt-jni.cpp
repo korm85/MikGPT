@@ -67,7 +67,7 @@ Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring mode
     LOGI("Loading model from: %s", path);
 
     llama_model_params model_params = llama_model_default_params();
-    model_params.n_gpu_layers = 99; // GPU offloading if compiled with Vulkan/OpenCL
+    model_params.n_gpu_layers = 0; // CPU-only; Vulkan not compiled in
 
     model = llama_model_load_from_file(path, model_params);
     env->ReleaseStringUTFChars(model_path, path);
@@ -78,7 +78,7 @@ Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring mode
     }
 
     llama_context_params ctx_params = llama_context_default_params();
-    ctx_params.n_ctx = 2048; // Context size
+    ctx_params.n_ctx = 1024; // Smaller context = less KV cache RAM on mobile
     ctx_params.n_threads = 4;
     ctx_params.n_threads_batch = 4;
 
