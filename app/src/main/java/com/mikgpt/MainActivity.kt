@@ -31,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +84,11 @@ fun AppScreen() {
     var hasStoragePermission by remember { mutableStateOf(checkStoragePermission(context)) }
     var showLogDialog by remember { mutableStateOf(false) }
     var logContent by remember { mutableStateOf("") }
+
+    // Copy/Download progress state
+    var showCopyProgress by remember { mutableStateOf(false) }
+    var copyProgressLabel by remember { mutableStateOf("") }
+    var copyProgress by remember { mutableStateOf(0f) }
 
     // Refresh permission when dialog is shown
     LaunchedEffect(showModelPicker) {
@@ -300,20 +307,98 @@ fun AppScreen() {
     if (showModelPicker) {
         ModelPickerDialog(
             onDismiss = { showModelPicker = false },
-            onFileSelected = { file ->
+            onFileSelected = { sourceFile ->
                 showModelPicker = false
                 scope.launch(Dispatchers.IO) {
-                    withContext(Dispatchers.Main) {
-                        modelStatus = "Loading local GGUF engine..."
-                        modelName = file.name
+                    val sandboxDir = context.getExternalFilesDir(null)!!
+                    val destFile = File(sandboxDir, sourceFile.name)
+
+                    // Only copy if not already in sandbox
+                    if (!destFile.exists() || destFile.length() != sourceFile.length()) {
+                        withContext(Dispatchers.Main) {
+                            showCopyProgress = true
+                            copyProgressLabel = "Copying ${sourceFile.name}..."
+                            copyProgress = 0f
+                        }
+                        val totalBytes = sourceFile.length().toFloat()
+                        var copiedBytes = 0L
+                        sourceFile.inputStream().use { input ->
+                            destFile.outputStream().use { output ->
+                                val buf = ByteArray(1024 * 1024) // 1 MB chunks
+                                var bytes: Int
+                                while (input.read(buf).also { bytes = it } != -1) {
+                                    output.write(buf, 0, bytes)
+                                    copiedBytes += bytes
+                                    val progress = copiedBytes / totalBytes
+                                    withContext(Dispatchers.Main) { copyProgress = progress }
+                                }
+                            }
+                        }
+                        withContext(Dispatchers.Main) { showCopyProgress = false }
                     }
-                    val success = LlamaInference.loadModel(file.absolutePath)
+
+                    withContext(Dispatchers.Main) {
+                        modelStatus = "Loading engine..."
+                        modelName = destFile.name
+                    }
+                    val success = LlamaInference.loadModel(destFile.absolutePath)
                     withContext(Dispatchers.Main) {
                         if (success) {
                             modelLoaded = true
-                            modelStatus = "Active: ${file.name}"
+                            modelStatus = "Active: ${destFile.name}"
                         } else {
                             modelStatus = "Error: Failed to load model file."
+                        }
+                    }
+                }
+            },
+            onDirectDownload = { url, fileName ->
+                showModelPicker = false
+                scope.launch(Dispatchers.IO) {
+                    val sandboxDir = context.getExternalFilesDir(null)!!
+                    val destFile = File(sandboxDir, fileName)
+                    withContext(Dispatchers.Main) {
+                        showCopyProgress = true
+                        copyProgressLabel = "Downloading $fileName..."
+                        copyProgress = 0f
+                    }
+                    try {
+                        val connection = URL(url).openConnection() as HttpURLConnection
+                        connection.connect()
+                        val totalBytes = connection.contentLength.toFloat()
+                        var downloadedBytes = 0L
+                        connection.inputStream.use { input ->
+                            destFile.outputStream().use { output ->
+                                val buf = ByteArray(1024 * 1024)
+                                var bytes: Int
+                                while (input.read(buf).also { bytes = it } != -1) {
+                                    output.write(buf, 0, bytes)
+                                    downloadedBytes += bytes
+                                    if (totalBytes > 0) {
+                                        val progress = downloadedBytes / totalBytes
+                                        withContext(Dispatchers.Main) { copyProgress = progress }
+                                    }
+                                }
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            showCopyProgress = false
+                            modelStatus = "Loading engine..."
+                            modelName = destFile.name
+                        }
+                        val success = LlamaInference.loadModel(destFile.absolutePath)
+                        withContext(Dispatchers.Main) {
+                            if (success) {
+                                modelLoaded = true
+                                modelStatus = "Active: ${destFile.name}"
+                            } else {
+                                modelStatus = "Error: Failed to load downloaded model."
+                            }
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            showCopyProgress = false
+                            modelStatus = "Error: Download failed — ${e.message}"
                         }
                     }
                 }
@@ -328,6 +413,27 @@ fun AppScreen() {
                 }
             },
             hasPermission = hasStoragePermission
+        )
+    }
+
+    // Copy / Download progress overlay dialog
+    if (showCopyProgress) {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text(copyProgressLabel, fontSize = 14.sp) },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { copyProgress },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("${(copyProgress * 100).toInt()}%", fontSize = 12.sp, color = Color.LightGray)
+                }
+            },
+            confirmButton = {}
         )
     }
 
@@ -427,26 +533,38 @@ fun MikGPTTheme(content: @Composable () -> Unit) {
     )
 }
 
+// Known models available on HuggingFace
+data class HFModel(
+    val name: String,
+    val description: String,
+    val sizeLabel: String,
+    val downloadUrl: String,
+    val fileName: String
+)
+
+val HUGGINGFACE_MODELS = listOf(
+    HFModel(
+        name = "Ternary-Bonsai-8B Q2_0",
+        description = "Ternary-quantized, optimized for mobile CPU inference",
+        sizeLabel = "~2.8 GB",
+        downloadUrl = "https://huggingface.co/PrismML-Eng/Ternary-Bonsai-8B-GGUF/resolve/main/Ternary-Bonsai-8B-Q2_0_g64.gguf",
+        fileName = "Ternary-Bonsai-8B-Q2_0_g64.gguf"
+    )
+)
+
 @Composable
 fun ModelPickerDialog(
     onDismiss: () -> Unit,
     onFileSelected: (File) -> Unit,
+    onDirectDownload: (url: String, fileName: String) -> Unit,
     onRequestPermission: () -> Unit,
     hasPermission: Boolean
 ) {
     val context = LocalContext.current
-    var appFiles by remember { mutableStateOf(listOf<File>()) }
     var downloadFiles by remember { mutableStateOf(listOf<File>()) }
     var refreshTrigger by remember { mutableStateOf(0) }
 
     LaunchedEffect(hasPermission, refreshTrigger) {
-        val appPrivateDir = context.getExternalFilesDir(null)
-        if (appPrivateDir != null) {
-            appFiles = appPrivateDir.listFiles { _, name ->
-                name.endsWith(".gguf", ignoreCase = true)
-            }?.toList() ?: emptyList()
-        }
-
         if (hasPermission) {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             downloadFiles = downloadsDir.listFiles { _, name ->
@@ -463,115 +581,109 @@ fun ModelPickerDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Select GGUF Model")
+                Text("Load Model")
                 IconButton(onClick = { refreshTrigger++ }) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Refresh Files", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.primary)
                 }
             }
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // Section 1: Guaranteed sandbox-compatible app storage folder
-                Text(
-                    "App Storage Folder (Guaranteed Loading):",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                if (appFiles.isEmpty()) {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                "No models found in app folder.",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                "Android system security may block native code from reading directly from your Downloads folder. To guarantee successful loading, copy your .gguf model file to your phone's app directory:",
-                                fontSize = 11.sp,
-                                color = Color.LightGray
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                "Android/data/com.mikgpt/files/",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                // ── Section 1: Local Downloads folder ──────────────────────
+                item {
+                    Text(
+                        "📂  My Downloads",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                if (!hasPermission) {
+                    item {
+                        Button(
+                            onClick = onRequestPermission,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            Text("Grant Storage Access", fontSize = 12.sp)
                         }
                     }
+                } else if (downloadFiles.isEmpty()) {
+                    item {
+                        Text(
+                            "No .gguf files found in Downloads.",
+                            fontSize = 12.sp,
+                            color = Color.LightGray,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 } else {
-                    LazyColumn(modifier = Modifier.heightIn(max = 120.dp)) {
-                        items(appFiles) { file ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onFileSelected(file) }
-                                    .padding(vertical = 8.dp, horizontal = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Default.Folder, contentDescription = "GGUF File", tint = MaterialTheme.colorScheme.secondary)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
-                                    Text(
-                                        String.format("%.2f GB (Sandbox Safe)", file.length() / (1024.0 * 1024.0 * 1024.0)),
-                                        fontSize = 10.sp,
-                                        color = Color.LightGray
-                                    )
-                                }
+                    items(downloadFiles) { file ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onFileSelected(file) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Folder, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
+                                Text(
+                                    String.format("%.2f GB  •  Tap to load", file.length() / (1024.0 * 1024.0 * 1024.0)),
+                                    fontSize = 10.sp,
+                                    color = Color.LightGray
+                                )
                             }
                         }
+                        Divider(color = Color.White.copy(alpha = 0.08f))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // ── Section 2: HuggingFace direct download catalog ──────────
+                item {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        "🤗  Download from HuggingFace",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Models download directly to the app. No files to move.",
+                        fontSize = 11.sp,
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
-                // Section 2: Shared Downloads Folder
-                Text(
-                    "Shared Downloads Folder:",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                if (!hasPermission) {
-                    Button(
-                        onClick = onRequestPermission,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp)
+                items(HUGGINGFACE_MODELS) { model ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable { onDirectDownload(model.downloadUrl, model.fileName) }
                     ) {
-                        Text("Grant Permission to Scan Downloads", fontSize = 12.sp)
-                    }
-                } else {
-                    if (downloadFiles.isEmpty()) {
-                        Text("No GGUF models found in Downloads folder.", fontSize = 12.sp, color = Color.LightGray)
-                    } else {
-                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                            items(downloadFiles) { file ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onFileSelected(file) }
-                                        .padding(vertical = 8.dp, horizontal = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Folder, contentDescription = "GGUF File", tint = Color.Gray)
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column {
-                                        Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
-                                        Text(
-                                            String.format("%.2f GB", file.length() / (1024.0 * 1024.0 * 1024.0)),
-                                            fontSize = 10.sp,
-                                            color = Color.LightGray
-                                        )
-                                    }
-                                }
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(model.name, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White)
+                                Text(model.description, fontSize = 10.sp, color = Color.LightGray)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(model.sizeLabel, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Icon(Icons.Default.Download, contentDescription = "Download", tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
