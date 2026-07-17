@@ -80,6 +80,8 @@ fun AppScreen() {
     // Dialog state variables
     var showModelPicker by remember { mutableStateOf(false) }
     var hasStoragePermission by remember { mutableStateOf(checkStoragePermission(context)) }
+    var showLogDialog by remember { mutableStateOf(false) }
+    var logContent by remember { mutableStateOf("") }
 
     // Refresh permission when dialog is shown
     LaunchedEffect(showModelPicker) {
@@ -105,6 +107,18 @@ fun AppScreen() {
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            val logFile = File(context.filesDir, "llama.log")
+                            val content = if (logFile.exists()) logFile.readText() else "No engine logs recorded yet."
+                            withContext(Dispatchers.Main) {
+                                logContent = content
+                                showLogDialog = true
+                            }
+                        }
+                    }) {
+                        Icon(Icons.Default.BugReport, contentDescription = "View Engine Logs", tint = MaterialTheme.colorScheme.primary)
+                    }
                     IconButton(onClick = { showModelPicker = true }) {
                         Icon(Icons.Default.CloudUpload, contentDescription = "Select GGUF Model", tint = MaterialTheme.colorScheme.primary)
                     }
@@ -314,6 +328,27 @@ fun AppScreen() {
                 }
             },
             hasPermission = hasStoragePermission
+        )
+    }
+
+    if (showLogDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogDialog = false },
+            title = { Text("Engine Logs Diagnostics") },
+            text = {
+                Box(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+                    LazyColumn {
+                        item {
+                            Text(logContent, fontSize = 11.sp, color = Color.White, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLogDialog = false }) {
+                    Text("Close")
+                }
+            }
         )
     }
 }

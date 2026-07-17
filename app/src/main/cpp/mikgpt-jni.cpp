@@ -1,6 +1,8 @@
 #include <jni.h>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <mutex>
 #include <android/log.h>
 #include "llama.h"
 #include "common.h"
@@ -12,8 +14,46 @@
 static llama_model* model = nullptr;
 static llama_context* ctx = nullptr;
 
+static std::string log_file_path = "/data/data/com.mikgpt/files/llama.log";
+static std::mutex log_mutex;
+
+// Redirect llama.cpp logs to Logcat and a local diagnostics file
+void llama_log_callback_android(enum ggml_log_level level, const char * text, void * user_data) {
+    (void)user_data;
+    
+    android_LogPriority priority = ANDROID_LOG_INFO;
+    if (level == GGML_LOG_LEVEL_ERROR) {
+        priority = ANDROID_LOG_ERROR;
+    } else if (level == GGML_LOG_LEVEL_WARN) {
+        priority = ANDROID_LOG_WARN;
+    } else if (level == GGML_LOG_LEVEL_DEBUG) {
+        priority = ANDROID_LOG_DEBUG;
+    }
+    __android_log_print(priority, "LlamaCPP", "%s", text);
+
+    std::lock_guard<std::mutex> lock(log_mutex);
+    std::ofstream outfile;
+    outfile.open(log_file_path, std::ios_base::app);
+    if (outfile.is_open()) {
+        outfile << text;
+        outfile.close();
+    }
+}
+
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring model_path) {
+    // Clear and initialize log file
+    {
+        std::lock_guard<std::mutex> lock(log_mutex);
+        std::ofstream outfile;
+        outfile.open(log_file_path, std::ios_base::trunc);
+        if (outfile.is_open()) {
+            outfile << "--- Engine Load Attempt ---\n";
+            outfile.close();
+        }
+    }
+    llama_log_set(llama_log_callback_android, nullptr);
+
     if (model != nullptr) {
         llama_model_free(model);
         model = nullptr;
