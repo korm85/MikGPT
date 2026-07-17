@@ -9,8 +9,8 @@ include(FetchContent)
 # Fetch llama.cpp source automatically at build time
 FetchContent_Declare(
     llamacpp
-    GIT_REPOSITORY https://github.com/ggml-org/llama.cpp.git
-    GIT_TAG        b4749 # Stable tag that supports Q1_0_g128
+    GIT_REPOSITORY https://github.com/PrismML-Eng/llama.cpp.git
+    GIT_TAG        prism
 )
 
 # Configure llama.cpp flags
