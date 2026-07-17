@@ -434,69 +434,140 @@ fun ModelPickerDialog(
     onRequestPermission: () -> Unit,
     hasPermission: Boolean
 ) {
-    var files by remember { mutableStateOf(listOf<File>()) }
+    val context = LocalContext.current
+    var appFiles by remember { mutableStateOf(listOf<File>()) }
+    var downloadFiles by remember { mutableStateOf(listOf<File>()) }
+    var refreshTrigger by remember { mutableStateOf(0) }
 
-    LaunchedEffect(hasPermission) {
-        if (hasPermission) {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val ggufFiles = downloadsDir.listFiles { _, name ->
+    LaunchedEffect(hasPermission, refreshTrigger) {
+        val appPrivateDir = context.getExternalFilesDir(null)
+        if (appPrivateDir != null) {
+            appFiles = appPrivateDir.listFiles { _, name ->
                 name.endsWith(".gguf", ignoreCase = true)
             }?.toList() ?: emptyList()
-            files = ggufFiles
+        }
+
+        if (hasPermission) {
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            downloadFiles = downloadsDir.listFiles { _, name ->
+                name.endsWith(".gguf", ignoreCase = true)
+            }?.toList() ?: emptyList()
         }
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select GGUF Model") },
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Select GGUF Model")
+                IconButton(onClick = { refreshTrigger++ }) {
+                    Icon(Icons.Default.Refresh, contentDescription = "Refresh Files", tint = MaterialTheme.colorScheme.primary)
+                }
+            }
+        },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (!hasPermission) {
-                    Text(
-                        "MikGPT requires 'All Files Access' to read models directly from your Downloads folder without duplicating them to save phone storage.",
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = onRequestPermission,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                // Section 1: Guaranteed sandbox-compatible app storage folder
+                Text(
+                    "App Storage Folder (Guaranteed Loading):",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                if (appFiles.isEmpty()) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                     ) {
-                        Text("Grant Storage Access")
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                "No models found in app folder.",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "Android system security may block native code from reading directly from your Downloads folder. To guarantee successful loading, copy your .gguf model file to your phone's app directory:",
+                                fontSize = 11.sp,
+                                color = Color.LightGray
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                "Android/data/com.mikgpt/files/",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
                     }
                 } else {
-                    Text(
-                        "Models found in Downloads folder:",
-                        fontSize = 12.sp,
-                        color = Color.LightGray
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    if (files.isEmpty()) {
-                        Text(
-                            "No GGUF models (.gguf) found in Download directory.\n\nPlease download or place your model there.",
-                            fontSize = 14.sp,
-                            color = Color.White
-                        )
+                    LazyColumn(modifier = Modifier.heightIn(max = 120.dp)) {
+                        items(appFiles) { file ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onFileSelected(file) }
+                                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Folder, contentDescription = "GGUF File", tint = MaterialTheme.colorScheme.secondary)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
+                                    Text(
+                                        String.format("%.2f GB (Sandbox Safe)", file.length() / (1024.0 * 1024.0 * 1024.0)),
+                                        fontSize = 10.sp,
+                                        color = Color.LightGray
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Section 2: Shared Downloads Folder
+                Text(
+                    "Shared Downloads Folder:",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                if (!hasPermission) {
+                    Button(
+                        onClick = onRequestPermission,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp)
+                    ) {
+                        Text("Grant Permission to Scan Downloads", fontSize = 12.sp)
+                    }
+                } else {
+                    if (downloadFiles.isEmpty()) {
+                        Text("No GGUF models found in Downloads folder.", fontSize = 12.sp, color = Color.LightGray)
                     } else {
-                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
-                            items(files) { file ->
+                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                            items(downloadFiles) { file ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable { onFileSelected(file) }
-                                        .padding(vertical = 12.dp, horizontal = 4.dp),
+                                        .padding(vertical = 8.dp, horizontal = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Folder,
-                                        contentDescription = "GGUF Model",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
+                                    Icon(Icons.Default.Folder, contentDescription = "GGUF File", tint = Color.Gray)
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column {
-                                        Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color.White)
+                                        Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White)
                                         Text(
                                             String.format("%.2f GB", file.length() / (1024.0 * 1024.0 * 1024.0)),
-                                            fontSize = 11.sp,
+                                            fontSize = 10.sp,
                                             color = Color.LightGray
                                         )
                                     }
