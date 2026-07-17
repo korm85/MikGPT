@@ -425,7 +425,7 @@ fun AppScreen() {
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
-                        progress = { copyProgress },
+                        progress = copyProgress,
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.primary
                     )
