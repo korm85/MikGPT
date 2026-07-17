@@ -15,7 +15,7 @@ static llama_context* ctx = nullptr;
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring model_path) {
     if (model != nullptr) {
-        llama_free_model(model);
+        llama_model_free(model);
         model = nullptr;
     }
     if (ctx != nullptr) {
@@ -27,10 +27,9 @@ Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring mode
     LOGI("Loading model from: %s", path);
 
     llama_model_params model_params = llama_model_default_params();
-    // Enable Vulkan/GPU layers if supported
-    model_params.n_gpu_layers = 99; // Offload as many layers to GPU (Vulkan) as possible
+    model_params.n_gpu_layers = 99; // GPU offloading if compiled with Vulkan/OpenCL
 
-    model = llama_load_model_from_file(path, model_params);
+    model = llama_model_load_from_file(path, model_params);
     env->ReleaseStringUTFChars(model_path, path);
 
     if (model == nullptr) {
@@ -43,10 +42,10 @@ Java_com_mikgpt_LlamaInference_loadModel(JNIEnv* env, jobject thiz, jstring mode
     ctx_params.n_threads = 4;
     ctx_params.n_threads_batch = 4;
 
-    ctx = llama_new_context_with_model(model, ctx_params);
+    ctx = llama_init_from_model(model, ctx_params);
     if (ctx == nullptr) {
         LOGE("Failed to create context");
-        llama_free_model(model);
+        llama_model_free(model);
         model = nullptr;
         return JNI_FALSE;
     }
@@ -66,10 +65,13 @@ Java_com_mikgpt_LlamaInference_generate(JNIEnv* env, jobject thiz, jstring promp
 
     LOGI("Generating text with prompt length: %d", (int)strlen(prompt));
 
-    // Tokenize prompt
+    // Get the vocabulary from the model
+    const llama_vocab* vocab = llama_model_get_vocab(model);
+
+    // Tokenize prompt using new vocabulary API
     std::vector<llama_token> tokens;
     tokens.resize(strlen(prompt) + 4);
-    int n_tokens = llama_tokenize(model, prompt, strlen(prompt), tokens.data(), tokens.size(), true, true);
+    int n_tokens = llama_tokenize(vocab, prompt, strlen(prompt), tokens.data(), tokens.size(), true, true);
     tokens.resize(n_tokens);
 
     // Prepare sampler and context
@@ -103,9 +105,11 @@ Java_com_mikgpt_LlamaInference_generate(JNIEnv* env, jobject thiz, jstring promp
     int max_tokens = 512;
     int gen_count = 0;
 
-    while (curr_token != llama_token_eos(model) && gen_count < max_tokens) {
+    // Use llama_vocab_eos(vocab) instead of deprecated llama_token_eos(model)
+    while (curr_token != llama_vocab_eos(vocab) && gen_count < max_tokens) {
         char buf[256];
-        int n = llama_token_to_piece(model, curr_token, buf, sizeof(buf), 0, true);
+        // Use vocab instead of model for token to piece mapping
+        int n = llama_token_to_piece(vocab, curr_token, buf, sizeof(buf), 0, true);
         if (n > 0) {
             buf[n] = '\0';
             std::string piece(buf);
@@ -144,7 +148,7 @@ Java_com_mikgpt_LlamaInference_unloadModel(JNIEnv* env, jobject thiz) {
         ctx = nullptr;
     }
     if (model != nullptr) {
-        llama_free_model(model);
+        llama_model_free(model);
         model = nullptr;
     }
     LOGI("Model unloaded");
