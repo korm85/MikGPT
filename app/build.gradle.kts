@@ -21,7 +21,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments += "-DGGML_VULKAN=ON"
+                arguments += "-DGGML_VULKAN=OFF"
                 cppFlags += ""
             }
         }

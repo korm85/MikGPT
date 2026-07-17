@@ -14,7 +14,7 @@ FetchContent_Declare(
 )
 
 # Configure llama.cpp flags
-set(GGML_VULKAN ON CACHE BOOL "Use Vulkan" FORCE)
+set(GGML_VULKAN OFF CACHE BOOL "Use Vulkan" FORCE)
 set(LLAMA_BUILD_COMMON ON CACHE BOOL "Build common" FORCE)
 set(LLAMA_BUILD_SERVER OFF CACHE BOOL "Build server executable" FORCE)
 set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "Build examples" FORCE)
