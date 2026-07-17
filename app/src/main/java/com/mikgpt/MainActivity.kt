@@ -1,12 +1,13 @@
 package com.mikgpt
 
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,18 +22,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +55,14 @@ data class Message(
     val artifactHtml: String = ""
 )
 
+fun checkStoragePermission(context: android.content.Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        Environment.isExternalStorageManager()
+    } else {
+        true
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScreen() {
@@ -71,40 +77,19 @@ fun AppScreen() {
     var searchEnabled by remember { mutableStateOf(true) }
     var isGenerating by remember { mutableStateOf(false) }
 
+    // Dialog state variables
+    var showModelPicker by remember { mutableStateOf(false) }
+    var hasStoragePermission by remember { mutableStateOf(checkStoragePermission(context)) }
+
+    // Refresh permission when dialog is shown
+    LaunchedEffect(showModelPicker) {
+        hasStoragePermission = checkStoragePermission(context)
+    }
+
     // Bottom sheet details for showing HTML artifacts (like Claude)
     var selectedArtifactHtml by remember { mutableStateOf<String?>(null) }
     var showArtifactSheet by remember { mutableStateOf(false) }
 
-    val filePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            scope.launch(Dispatchers.IO) {
-                modelStatus = "Importing GGUF model to local storage..."
-                val name = getFileName(context, uri) ?: "model.gguf"
-                modelName = name
-
-                // Copy to internal storage so llama.cpp can load it safely
-                val targetFile = File(context.filesDir, name)
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                    FileOutputStream(targetFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-
-                modelStatus = "Loading local GGUF engine..."
-                val success = LlamaInference.loadModel(targetFile.absolutePath)
-                withContext(Dispatchers.Main) {
-                    if (success) {
-                        modelLoaded = true
-                        modelStatus = "Active: $name"
-                    } else {
-                        modelStatus = "Error: Failed to load model file."
-                    }
-                }
-            }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -120,8 +105,8 @@ fun AppScreen() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { filePicker.launch("*/*") }) {
-                        Icon(Icons.Default.CloudUpload, contentDescription = "Import GGUF Model", tint = MaterialTheme.colorScheme.primary)
+                    IconButton(onClick = { showModelPicker = true }) {
+                        Icon(Icons.Default.CloudUpload, contentDescription = "Select GGUF Model", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -297,6 +282,40 @@ fun AppScreen() {
             }
         }
     }
+
+    if (showModelPicker) {
+        ModelPickerDialog(
+            onDismiss = { showModelPicker = false },
+            onFileSelected = { file ->
+                showModelPicker = false
+                scope.launch(Dispatchers.IO) {
+                    withContext(Dispatchers.Main) {
+                        modelStatus = "Loading local GGUF engine..."
+                        modelName = file.name
+                    }
+                    val success = LlamaInference.loadModel(file.absolutePath)
+                    withContext(Dispatchers.Main) {
+                        if (success) {
+                            modelLoaded = true
+                            modelStatus = "Active: ${file.name}"
+                        } else {
+                            modelStatus = "Error: Failed to load model file."
+                        }
+                    }
+                }
+            },
+            onRequestPermission = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                        Uri.parse("package:" + context.packageName)
+                    )
+                    context.startActivity(intent)
+                }
+            },
+            hasPermission = hasStoragePermission
+        )
+    }
 }
 
 @Composable
@@ -352,32 +371,6 @@ fun ChatBubble(msg: Message, onArtifactClick: (String) -> Unit) {
     }
 }
 
-// Utility to retrieve file name from Android URI
-fun getFileName(context: android.content.Context, uri: Uri): String? {
-    var result: String? = null
-    if (uri.scheme == "content") {
-        val cursor = context.contentResolver.query(uri, null, null, null, null)
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (index >= 0) {
-                    result = cursor.getString(index)
-                }
-            }
-        } finally {
-            cursor?.close()
-        }
-    }
-    if (result == null) {
-        result = uri.path
-        val cut = result?.lastIndexOf('/') ?: -1
-        if (cut != -1) {
-            result = result?.substring(cut + 1)
-        }
-    }
-    return result
-}
-
 // Custom Material 3 Premium Theme
 @Composable
 fun MikGPTTheme(content: @Composable () -> Unit) {
@@ -396,5 +389,93 @@ fun MikGPTTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = darkColorScheme,
         content = content
+    )
+}
+
+@Composable
+fun ModelPickerDialog(
+    onDismiss: () -> Unit,
+    onFileSelected: (File) -> Unit,
+    onRequestPermission: () -> Unit,
+    hasPermission: Boolean
+) {
+    var files by remember { mutableStateOf(listOf<File>()) }
+
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val ggufFiles = downloadsDir.listFiles { _, name ->
+                name.endsWith(".gguf", ignoreCase = true)
+            }?.toList() ?: emptyList()
+            files = ggufFiles
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select GGUF Model") },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (!hasPermission) {
+                    Text(
+                        "MikGPT requires 'All Files Access' to read models directly from your Downloads folder without duplicating them to save phone storage.",
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = onRequestPermission,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Grant Storage Access")
+                    }
+                } else {
+                    Text(
+                        "Models found in Downloads folder:",
+                        fontSize = 12.sp,
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    if (files.isEmpty()) {
+                        Text(
+                            "No GGUF models (.gguf) found in Download directory.\n\nPlease download or place your model there.",
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    } else {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                            items(files) { file ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { onFileSelected(file) }
+                                        .padding(vertical = 12.dp, horizontal = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Folder,
+                                        contentDescription = "GGUF Model",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(file.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color.White)
+                                        Text(
+                                            String.format("%.2f GB", file.length() / (1024.0 * 1024.0 * 1024.0)),
+                                            fontSize = 11.sp,
+                                            color = Color.LightGray
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
     )
 }
