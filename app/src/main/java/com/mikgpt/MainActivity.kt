@@ -312,29 +312,51 @@ fun AppScreen() {
                 scope.launch(Dispatchers.IO) {
                     val sandboxDir = context.getExternalFilesDir(null)!!
                     val destFile = File(sandboxDir, sourceFile.name)
+                    val tmpFile = File(sandboxDir, sourceFile.name + ".tmp")
 
-                    // Only copy if not already in sandbox
-                    if (!destFile.exists() || destFile.length() != sourceFile.length()) {
-                        withContext(Dispatchers.Main) {
-                            showCopyProgress = true
-                            copyProgressLabel = "Copying ${sourceFile.name}..."
-                            copyProgress = 0f
-                        }
-                        val totalBytes = sourceFile.length().toFloat()
-                        var copiedBytes = 0L
+                    // Always delete stale cached copy to avoid corrupted files
+                    destFile.delete()
+                    tmpFile.delete()
+
+                    withContext(Dispatchers.Main) {
+                        showCopyProgress = true
+                        copyProgressLabel = "Copying ${sourceFile.name}..."
+                        copyProgress = 0f
+                    }
+                    val totalBytes = sourceFile.length()
+                    var copiedBytes = 0L
+                    var copyOk = false
+                    try {
                         sourceFile.inputStream().use { input ->
-                            destFile.outputStream().use { output ->
-                                val buf = ByteArray(1024 * 1024) // 1 MB chunks
+                            tmpFile.outputStream().use { output ->
+                                val buf = ByteArray(1024 * 1024)
                                 var bytes: Int
                                 while (input.read(buf).also { bytes = it } != -1) {
                                     output.write(buf, 0, bytes)
                                     copiedBytes += bytes
-                                    val progress = copiedBytes / totalBytes
+                                    val progress = copiedBytes.toFloat() / totalBytes
                                     withContext(Dispatchers.Main) { copyProgress = progress }
                                 }
                             }
                         }
-                        withContext(Dispatchers.Main) { showCopyProgress = false }
+                        // Verify integrity before committing
+                        if (tmpFile.length() == totalBytes) {
+                            tmpFile.renameTo(destFile)
+                            copyOk = true
+                        } else {
+                            tmpFile.delete()
+                        }
+                    } catch (e: Exception) {
+                        tmpFile.delete()
+                    }
+
+                    withContext(Dispatchers.Main) { showCopyProgress = false }
+
+                    if (!copyOk) {
+                        withContext(Dispatchers.Main) {
+                            modelStatus = "Error: Source file appears corrupted or truncated. Re-download the original GGUF file."
+                        }
+                        return@launch
                     }
 
                     withContext(Dispatchers.Main) {
@@ -347,7 +369,7 @@ fun AppScreen() {
                             modelLoaded = true
                             modelStatus = "Active: ${destFile.name}"
                         } else {
-                            modelStatus = "Error: Failed to load model file."
+                            modelStatus = "Error: Failed to load model. Check Engine Logs for details."
                         }
                     }
                 }
@@ -357,6 +379,10 @@ fun AppScreen() {
                 scope.launch(Dispatchers.IO) {
                     val sandboxDir = context.getExternalFilesDir(null)!!
                     val destFile = File(sandboxDir, fileName)
+                    val tmpFile = File(sandboxDir, "$fileName.tmp")
+                    // Always start fresh to avoid partial/corrupted cached downloads
+                    destFile.delete()
+                    tmpFile.delete()
                     withContext(Dispatchers.Main) {
                         showCopyProgress = true
                         copyProgressLabel = "Downloading $fileName..."
@@ -364,23 +390,27 @@ fun AppScreen() {
                     }
                     try {
                         val connection = URL(url).openConnection() as HttpURLConnection
+                        connection.connectTimeout = 15000
+                        connection.readTimeout = 60000
                         connection.connect()
-                        val totalBytes = connection.contentLength.toFloat()
+                        val totalBytes = connection.contentLength.toLong()
                         var downloadedBytes = 0L
                         connection.inputStream.use { input ->
-                            destFile.outputStream().use { output ->
+                            tmpFile.outputStream().use { output ->
                                 val buf = ByteArray(1024 * 1024)
                                 var bytes: Int
                                 while (input.read(buf).also { bytes = it } != -1) {
                                     output.write(buf, 0, bytes)
                                     downloadedBytes += bytes
                                     if (totalBytes > 0) {
-                                        val progress = downloadedBytes / totalBytes
+                                        val progress = downloadedBytes.toFloat() / totalBytes
                                         withContext(Dispatchers.Main) { copyProgress = progress }
                                     }
                                 }
                             }
                         }
+                        // Atomic rename: only commit if download completed fully
+                        tmpFile.renameTo(destFile)
                         withContext(Dispatchers.Main) {
                             showCopyProgress = false
                             modelStatus = "Loading engine..."
@@ -392,10 +422,11 @@ fun AppScreen() {
                                 modelLoaded = true
                                 modelStatus = "Active: ${destFile.name}"
                             } else {
-                                modelStatus = "Error: Failed to load downloaded model."
+                                modelStatus = "Error: Failed to load downloaded model. Check Engine Logs."
                             }
                         }
                     } catch (e: Exception) {
+                        tmpFile.delete()
                         withContext(Dispatchers.Main) {
                             showCopyProgress = false
                             modelStatus = "Error: Download failed — ${e.message}"
